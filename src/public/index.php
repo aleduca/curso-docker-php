@@ -2,6 +2,8 @@
 
 require '../vendor/autoload.php';
 
+// dump(phpinfo());
+
 function connection()
 {
   return new PDO("mysql:host=myapp_mysql;dbname=docker", "root", "root");
