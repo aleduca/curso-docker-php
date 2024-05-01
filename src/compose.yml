@@ -1,0 +1,50 @@
+#  docker run --rm --name myapp_mysql -p 3307:3306 --network myapp -v C:\dev\curso-docker-php\docker\mysql\data:/var/lib/mysql -d myapp:mysql
+
+networks:
+  myapp:
+    driver: bridge
+
+services:
+  php_fpm:
+    build:
+      context: ../docker/php-fpm
+      dockerfile: Dockerfile
+    container_name: myapp_php_fpm
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    working_dir: /var/www/html
+    networks:
+      - myapp
+    volumes:
+      - ./:/var/www/html
+
+  nginx:
+    build:
+      context: ../docker/nginx
+      dockerfile: Dockerfile
+    container_name: myapp_nginx
+    restart: unless-stopped
+    depends_on:
+      - php_fpm
+    networks:
+      - myapp
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www/html
+
+  mysql:
+    build:
+      context: ../docker/mysql
+      dockerfile: Dockerfile
+    container_name: myapp_mysql
+    restart: unless-stopped
+    networks:
+      - myapp
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ../docker/mysql/data:/var/lib/mysql
